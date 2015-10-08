@@ -38,11 +38,6 @@ extension Int : JSONValueType {
 extension String : JSONValueType {
 }
 
-
-
-
-
-
 extension Array where Element : JSONValueType {
     public static func JSONValue(object: Any) throws -> [Element] {
         if let object = object as? [Element] {
@@ -123,26 +118,3 @@ extension Dictionary where Key: JSONKeyType {
 
 public typealias JSONObject = Dictionary<String, AnyObject>
 
-// MARK: - Tests
-
-//var object: JSONObject = ["foo" : (2 as NSNumber), "str": "Hello, World!", "array" : [1,2,3,4,7], "object": ["foo" : (3 as NSNumber), "str": "Hello, World!"]]
-//do {
-//    var str: String = try object.JSONValueForKey("str")
-//    //    var foo1: String = try object.JSONValueForKey("foo")
-//    var foo2: Int = try object.JSONValueForKey("foo")
-//    var foo3: Int? = try object.JSONOptionalForKey("foo")
-//    var foo4: Int? = try object.JSONOptionalForKey("bar")
-//    var arr: [Int] = try object.JSONValueForKey("array")
-//    var obj: JSONObject = try object.JSONValueForKey("object")
-//    let innerfoo: Int = try obj.JSONValueForKey("foo")
-//    let innerfoo2: Int = try object.JSONValueForKey("object.foo")
-//}
-//catch JSONError.NoValueForKey {
-//    print("no value for key")
-//}
-//catch JSONError.TypeMismatch {
-//    print("Wrong value")
-//}
-//catch {
-//    print("Unknown Error")
-//}
