@@ -4,7 +4,7 @@ import Foundation
 extension Float : JSONValueType {}
 extension Double : JSONValueType {}
 
-extension Dictionary where Key: JSONKeyType {
+public extension Dictionary where Key: JSONKeyType {
     
     static func JSONObjectWithData(data:NSData) throws -> [Key:Value] {
         let obj:Any = try NSJSONSerialization.JSONObjectWithData(data, options: [])
@@ -39,8 +39,15 @@ extension NSDate : JSONValueType {
     }
 }
 
-extension NSDate {
-    static private let ISO8601Formatter:NSDateFormatter = {
+public extension NSDate {
+    static private let ISO8601MillisecondFormatter:NSDateFormatter = {
+        let formatter = NSDateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+        let tz = NSTimeZone(abbreviation:"GMT")
+        formatter.timeZone = tz
+        return formatter
+        }()
+    static private let ISO8601SecondFormatter:NSDateFormatter = {
         let formatter = NSDateFormatter()
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'";
         let tz = NSTimeZone(abbreviation:"GMT")
@@ -48,8 +55,16 @@ extension NSDate {
         return formatter
         }()
     
+    static private let formatters = [ISO8601MillisecondFormatter,
+                                    ISO8601SecondFormatter]
+    
     static func fromISO8601String(dateString:String) -> NSDate? {
-        return ISO8601Formatter.dateFromString(dateString)
+        for formatter in formatters {
+            if let date = formatter.dateFromString(dateString) {
+                return date
+            }
+        }
+        return .None
     }
 }
 
