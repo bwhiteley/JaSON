@@ -3,6 +3,7 @@ import Foundation
 
 extension Float : JSONValueType {}
 extension Double : JSONValueType {}
+extension Bool: JSONValueType {}
 
 public extension Dictionary where Key: JSONKeyType {
     
