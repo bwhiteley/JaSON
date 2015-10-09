@@ -28,7 +28,7 @@ extension JSONValueType {
         if let object = object as? JSONItem {
             return object
         }
-        throw JSONError.TypeMismatch
+        throw JSONError.TypeMismatchForValue( object.dynamicType, JSONItem.self )
     }
 }
 
@@ -43,7 +43,7 @@ extension Array where Element : JSONValueType {
         if let object = object as? [Element] {
             return object
         }
-        throw JSONError.TypeMismatch
+        throw JSONError.TypeMismatchForValue( object.dynamicType, self )
     }
 }
 
@@ -52,15 +52,36 @@ extension Dictionary : JSONValueType {
         if let object = object as? Dictionary<Key, Value> {
             return object
         }
-        throw JSONError.TypeMismatch
+        throw JSONError.TypeMismatchForValue( object.dynamicType, self )
     }
 }
 
 // MARK: - The Parsing
 
-public enum JSONError: ErrorType {
-    case NoValueForKey(String)
-    case TypeMismatch
+public enum JSONError: ErrorType, CustomStringConvertible
+{
+    case KeyNotFound( JSONKeyType ),
+    NullValueForKey( JSONKeyType ),
+    TypeMismatchForKey( JSONKeyType ),
+    TypeMismatchForValue( Any, Any ),
+    SerializationFailure( ErrorType )
+    
+    public var description: String
+        {
+            switch self
+            {
+            case let .KeyNotFound( key ):
+                return "Key not found: \(key.JSONKey)"
+            case let .NullValueForKey( key ):
+                return "\"null\" value for key: \(key.JSONKey)"
+            case let .TypeMismatchForKey( key ):
+                return "Type mismatch for key: \(key.JSONKey)"
+            case let .TypeMismatchForValue( value, expectedType ):
+                return "Type mismatch. Found '\(value)' expecting '\(expectedType)'"
+            case let .SerializationFailure( error ):
+                return "Serialization failed with error: \(error)"
+            }
+    }
 }
 
 extension Dictionary where Key: JSONKeyType {
@@ -76,13 +97,13 @@ extension Dictionary where Key: JSONKeyType {
                 }
             }
             
-            throw JSONError.NoValueForKey(key.JSONKey)
+            throw JSONError.KeyNotFound(key.JSONKey)
         }
         
         // Treat "null" as missing. 
         // This differs from jarsen's 
         if let _ = accumulator as? NSNull {
-            throw JSONError.NoValueForKey(key.JSONKey)
+            throw JSONError.NullValueForKey(key.JSONKey)
         }
         
         return accumulator
@@ -91,7 +112,7 @@ extension Dictionary where Key: JSONKeyType {
     public func JSONValueForKey<A: JSONValueType>(key: Key) throws -> A {
         let accumulator = try objectForKey(key)
         guard let result = try A.JSONValue(accumulator) as? A else {
-            throw JSONError.TypeMismatch
+            throw JSONError.TypeMismatchForKey( key )
         }
         return result
     }
@@ -105,11 +126,14 @@ extension Dictionary where Key: JSONKeyType {
         do {
             return try self.JSONValueForKey(key) as A
         }
-        catch JSONError.NoValueForKey {
+        catch JSONError.KeyNotFound {
+            return nil
+        }
+        catch JSONError.NullValueForKey {
             return nil
         }
         catch {
-            throw JSONError.TypeMismatch
+            throw JSONError.TypeMismatchForKey(key)
         }
     }
     
