@@ -49,7 +49,7 @@ class JaSONTests: XCTestCase {
             catch {
                 let jsonError = error as! JSONError
                 expectation.fulfill()
-                guard case JSONError.TypeMismatchForKey = jsonError else {
+                guard case JSONError.TypeMismatch = jsonError else {
                     XCTFail("shouldn't get here")
                     return
                 }
@@ -59,10 +59,58 @@ class JaSONTests: XCTestCase {
     
     }
     
+    func testOptionals() {
+        var str:String = try! object <| "str"
+        XCTAssertEqual(str, "Hello, World!")
+        
+        var optStr:String? = try! object <|? "str"
+        XCTAssertEqual(optStr, "Hello, World!")
+        
+        optStr = try! object <|? "not found"
+        XCTAssertEqual(optStr, .None)
+        
+        let ex = self.expectationWithDescription("not found")
+        do {
+            str = try object <| "not found"
+        }
+        catch {
+            if case JSONError.KeyNotFound = error {
+                ex.fulfill()
+            }
+        }
+        self.waitForExpectationsWithTimeout(1, handler: nil)
+    }
+    
+    func testErrors() {
+        var expectation = self.expectationWithDescription("not found")
+        let str: String = try! self.object.JSONValueForKey("str")
+        XCTAssertEqual(str, "Hello, World!")
+        do {
+            let _:Int = try object.JSONValueForKey("no key")
+        }
+        catch {
+            if case JSONError.KeyNotFound = error {
+                expectation.fulfill()
+            }
+        }
+        
+        expectation = self.expectationWithDescription("key mismatch")
+        do {
+            let _:Int = try object.JSONValueForKey("str")
+        }
+        catch {
+            if case JSONError.TypeMismatch = error {
+                expectation.fulfill()
+            }
+        }
+        
+        self.waitForExpectationsWithTimeout(1, handler: nil)
+    }
+    
     func testDicionary() {
         let path = NSBundle(forClass: self.dynamicType).pathForResource("TestDictionary", ofType: "json")!
         var data = NSData(contentsOfFile: path)!
-        var json:JSONObject = try! JSONObject.JSONObjectWithData(data)
+        var json:JSONObject = try! JSONParser.JSONObjectWithData(data)
         let url:NSURL = try! json.JSONValueForKey("meta.next")
         XCTAssertEqual(url.host, "apple.com")
         var people:[JSONObject] = try! json.JSONValueForKey("list")
@@ -72,7 +120,7 @@ class JaSONTests: XCTestCase {
         
         data = try! json.jsonData()
         
-        json = try! JSONObject.JSONObjectWithData(data)
+        json = try! JSONParser.JSONObjectWithData(data)
         people = try! json.JSONValueForKey("list")
         person = people[1]
         let dead = try! !person.JSONValueForKey("living")
@@ -95,7 +143,7 @@ class JaSONTests: XCTestCase {
     func testObjectArray() {
         let path = NSBundle(forClass: self.dynamicType).pathForResource("TestObjectArray", ofType: "json")!
         var data = NSData(contentsOfFile: path)!
-        var ra:[JSONObject] = try! JSONObject.JSONObjectArrayWithData(data)
+        var ra:[JSONObject] = try! JSONParser.JSONObjectArrayWithData(data)
         
         var obj:JSONObject = ra[0]
         XCTAssertEqual(try! obj.JSONValueForKey("n") as Int, 1)
@@ -103,7 +151,7 @@ class JaSONTests: XCTestCase {
         
         data = try! ra.jsonData()
         
-        ra = try! JSONObject.JSONObjectArrayWithData(data)
+        ra = try! JSONParser.JSONObjectArrayWithData(data)
         obj = ra[1]
         XCTAssertEqual(try! obj.JSONValueForKey("str") as String, "world")
     }
