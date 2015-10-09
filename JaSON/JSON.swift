@@ -14,10 +14,6 @@ extension String: JSONKeyType {
 
 // MARK: - Values
 
-//public protocol JSONValueType {
-//    static func JSONValue(object: Any) throws -> Self
-//}
-
 public protocol JSONValueType {
     typealias JSONItem = Self
     static func JSONValue(object: Any) throws -> JSONItem

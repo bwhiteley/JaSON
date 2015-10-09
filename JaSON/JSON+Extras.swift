@@ -6,10 +6,7 @@ extension Double : JSONValueType {}
 extension Bool: JSONValueType {}
 
 public protocol JSONCollectionType {
-    typealias JSONCollection = Self
     func jsonData() throws -> NSData
-//    static func JSONCollectionWithData<A: JSONCollectionType>(data:NSData) throws -> A
-//    static func JSONCollectionWithData(data:NSData) throws -> JSONCollection
 }
 
 extension JSONCollectionType {
@@ -19,38 +16,20 @@ extension JSONCollectionType {
         }
         return try NSJSONSerialization.dataWithJSONObject(jsonCollection, options: [])
     }
-    
-//    public static func JSONCollectionWithData<A: JSONCollectionType>(data:NSData) throws -> A {
-    public static func JSONCollectionWithData(data:NSData) throws -> Self {
-        let object:AnyObject = try NSJSONSerialization.JSONObjectWithData(data, options: [])
-        guard let collection = object as? Self else {
-            throw JSONError.TypeMismatchForValue( object.dynamicType, self )
-        }
-        return collection
-    }
-    
 }
 
 extension Dictionary : JSONCollectionType {}
-//extension Array : JSONCollectionType {}
+extension Array : JSONCollectionType {}
 
-public typealias JSONArray = Array<JSONValueType>
+public typealias JSONObjectArray = Array<JSONObject>
 
 
 public extension Dictionary where Key: JSONKeyType {
     
-//    static func JSONObjectWithData(data:NSData) throws -> [Key:Value] {
-//        let obj:Any = try NSJSONSerialization.JSONObjectWithData(data, options: [])
-//        return try self.JSONValue(obj)
-//    }
-    
-//    public func rawData() throws -> NSData {
-//        guard let dict = self as? AnyObject else {
-//            throw JSONError.TypeMismatchForKey("{\"rootObject\":null}")
-//        }
-//        return try NSJSONSerialization.dataWithJSONObject(dict, options: [])
-//    }
-    
+    public static func JSONObjectWithData(data:NSData) throws -> [Key:Value] {
+        let obj:Any = try NSJSONSerialization.JSONObjectWithData(data, options: [])
+        return try self.JSONValue(obj)
+    }
     
     static func JSONObjectArrayWithData(data:NSData) throws -> [JSONObject] {
         let object:AnyObject = try NSJSONSerialization.JSONObjectWithData(data, options: [])
@@ -62,15 +41,15 @@ public extension Dictionary where Key: JSONKeyType {
     
 }
 
-public extension Array where Element: JSONValueType {
-    static func JSONObjectArrayWithData(data:NSData) throws -> JSONArray {
-        let object:AnyObject = try NSJSONSerialization.JSONObjectWithData(data, options: [])
-        guard let ra = object as? JSONArray else {
-            throw JSONError.TypeMismatchForValue( object.dynamicType, self )
-        }
-        return ra
-    }
-}
+//public extension Array where Element: JSONCollectionType {
+//    public static func JSONObjectArrayWithData(data:NSData) throws -> [[String:AnyObject]] {
+//        let object:AnyObject = try NSJSONSerialization.JSONObjectWithData(data, options: [])
+//        guard let ra = object as? JSONObjectArray else {
+//            throw JSONError.TypeMismatchForValue( object.dynamicType, self )
+//        }
+//        return ra
+//    }
+//}
 
 extension NSDate : JSONValueType {
     public static func JSONValue(object: Any) throws -> NSDate {
