@@ -50,8 +50,8 @@ extension Array where Element : JSONValueType {
 }
 
 extension Dictionary : JSONValueType {
-    public static func JSONValue(object: Any) throws -> Dictionary<Key, Value> {
-        if let object = object as? Dictionary<Key, Value> {
+    public static func JSONValue(object: Any) throws -> [Key: Value] {
+        if let object = object as? [Key: Value] {
             return object
         }
         throw JSONError.TypeMismatchForValue(expectedType: self, foundType: object.dynamicType)
@@ -139,5 +139,5 @@ extension Dictionary where Key: JSONKeyType {
     
 }
 
-public typealias JSONObject = Dictionary<String, AnyObject>
+public typealias JSONObject = [String: AnyObject]
 

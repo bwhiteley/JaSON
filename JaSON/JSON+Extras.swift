@@ -36,7 +36,7 @@ extension JSONCollectionType {
 extension Dictionary : JSONCollectionType {}
 extension Array : JSONCollectionType {}
 
-public typealias JSONObjectArray = Array<JSONObject>
+public typealias JSONObjectArray = [JSONObject]
 
 
 extension NSDate : JSONValueType {
