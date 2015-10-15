@@ -33,6 +33,20 @@ extension JSONCollectionType {
     }
 }
 
+//public protocol JSONObjectConvertible : JSONValueType {
+//    typealias ConvertibleType = Self
+//    init(json:JSONObject) throws
+//}
+//
+//extension JSONObjectConvertible {
+//    public static func JSONValue(object: Any) throws -> ConvertibleType {
+//        guard let json = object as? JSONObject else {
+//            throw JSONError.TypeMismatchForValue(expectedType: JSONObject.self, foundType: object.dynamicType)
+//        }
+//        return try ConvertibleType(json: json)
+//    }
+//}
+
 extension Dictionary : JSONCollectionType {}
 extension Array : JSONCollectionType {}
 
