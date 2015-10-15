@@ -1,143 +1,173 @@
-// MARK: - Keys
+//
+// MARK: - JSONError Type
+//
 
-import Foundation
-
-public protocol JSONKeyType {
-    var JSONKey: String { get }
-}
-
-extension String: JSONKeyType {
-    public var JSONKey: String {
-        return self
-    }
-}
-
-// MARK: - Values
-
-public protocol JSONValueType {
-    typealias JSONItem = Self
-    
-    /** 
-    * Convert a native JSON type into a conforming type.
-    * See NSURL for an example. If the native type provided is not compatible, 
-    * throw a JSONError.TypeMismatchForValue.
-    */
-    static func JSONValue(object: Any) throws -> JSONItem
-}
-
-extension JSONValueType {
-    public static func JSONValue(object: Any) throws -> JSONItem {
-        guard let value = object as? JSONItem else {
-            throw JSONError.TypeMismatchForValue(expectedType: JSONItem.self, foundType: object.dynamicType)
-        }
-        return value
-    }
-}
-
-extension Int : JSONValueType {
-}
-
-extension String : JSONValueType {
-}
-
-extension Array where Element : JSONValueType {
-    public static func JSONValue(object: Any) throws -> [Element] {
-        if let object = object as? [Element] {
-            return object
-        }
-        throw JSONError.TypeMismatch(key: nil, expectedType: self, foundType: object.dynamicType)
-    }
-}
-
-extension Dictionary : JSONValueType {
-    public static func JSONValue(object: Any) throws -> [Key: Value] {
-        if let object = object as? [Key: Value] {
-            return object
-        }
-        throw JSONError.TypeMismatchForValue(expectedType: self, foundType: object.dynamicType)
-    }
-}
-
-// MARK: - The Parsing
-
-public enum JSONError : ErrorType, CustomStringConvertible {
-    case KeyNotFound(String)
-    case TypeMismatch(key:String?, expectedType:Any, foundType:Any)
-    case NullValueForKey(String)
-    case TypeMismatchForValue(expectedType:Any, foundType:Any)
+public enum JSONError: ErrorType, CustomStringConvertible {
+    case KeyNotFound(key: JSONKeyType)
+    case NullValue(key: JSONKeyType)
+    case TypeMismatch(expected: Any, actual: Any)
+    case TypeMismatchWithKey(key: JSONKeyType, expected: Any, actual: Any)
     
     public var description: String {
         switch self {
         case let .KeyNotFound(key):
-            return "JSON Error. Expected value for key: \(key)"
-        case let .NullValueForKey(key):
-            return "JSON Error. Null value for key: \(key)"
-        case let .TypeMismatch(key, expectedType, foundType):
-            return "JSON Error. Expected \(expectedType) for key \(key), found \(foundType)"
-        case let .TypeMismatchForValue(expectedType, foundType):
-            return "JSON Error. Expected \(expectedType), found \(foundType)"
+            return "Key not found: \(key.stringValue)"
+        case let .NullValue(key):
+            return "Null Value found at: \(key.stringValue)"
+        case let .TypeMismatch(expected, actual):
+            return "Type mismatch. Expected type \(expected). Got '\(actual)'"
+        case let .TypeMismatchWithKey(key, expected, actual):
+            return "Type mismatch. Expected type \(expected) at key: \(key). Got '\(actual)'"
         }
     }
 }
 
+//
+// MARK: - JSONKeyType
+//
+
+public protocol JSONKeyType: Hashable {
+    var stringValue: String { get }
+}
+
+extension String: JSONKeyType {
+    public var stringValue: String {
+        return self
+    }
+}
+
+//
+// MARK: - JSONValueType
+//
+
+public protocol JSONValueType {
+    typealias _JSONValue = Self
+    
+    static func JSONValue(object: Any) throws -> _JSONValue
+}
+
+extension JSONValueType {
+    public static func JSONValue(object: Any) throws -> _JSONValue {
+        guard let objectValue = object as? _JSONValue else {
+            throw JSONError.TypeMismatch(expected: JSONValue.self, actual: object.dynamicType)
+        }
+        return objectValue
+    }
+}
+
+//
+// MARK: - JSONValueType Implementations
+//
+
+extension String: JSONValueType {}
+extension Int: JSONValueType {}
+extension UInt: JSONValueType {}
+extension Float: JSONValueType {}
+extension Double: JSONValueType {}
+extension Bool: JSONValueType {}
+
+extension Array where Element: JSONValueType {
+    public static func JSONValue(object: Any) throws -> [Element] {
+        guard let objectValue = object as? [Element] else {
+            throw JSONError.TypeMismatch(expected: self, actual: object.dynamicType)
+        }
+        return objectValue
+    }
+}
+
+extension Dictionary: JSONValueType {
+    public static func JSONValue(object: Any) throws -> [Key: Value] {
+        guard let objectValue = object as? [Key: Value] else {
+            throw JSONError.TypeMismatch(expected: self, actual: object.dynamicType)
+        }
+        return objectValue
+    }
+}
+
+extension NSURL: JSONValueType {
+    public static func JSONValue(object: Any) throws -> NSURL {
+        guard let urlString = object as? String, objectValue = NSURL(string: urlString) else {
+            throw JSONError.TypeMismatch(expected: self, actual: object.dynamicType)
+        }
+        return objectValue
+    }
+}
+
+//
+// MARK: - JSONObject
+//
+
+public typealias JSONObject = [String: AnyObject]
+
 extension Dictionary where Key: JSONKeyType {
-    private func objectForKey(key: Key) throws -> Any {
-        let pathComponents = key.JSONKey.characters.split(".").map(String.init)
+    private func anyForKey(key: Key) throws -> Any {
+        let pathComponents = key.stringValue.characters.split(".").map(String.init)
         var accumulator: Any = self
         
         for component in pathComponents {
-            if let componentData = accumulator as? [Key: Value] {
-                if let key = component as? Key, value = componentData[ key ] {
-                    accumulator = value
-                    continue
-                }
+            if let componentData = accumulator as? [Key: Value], value = componentData[component as! Key] {
+                accumulator = value
+                continue
             }
             
-            throw JSONError.KeyNotFound(key.JSONKey)
-        }
-        
-        // Treat "null" as missing. 
-        // This differs from jarsen's 
-        if let _ = accumulator as? NSNull {
-            throw JSONError.NullValueForKey(key.JSONKey)
+            throw JSONError.KeyNotFound(key: key)
         }
         
         return accumulator
     }
     
     public func JSONValueForKey<A: JSONValueType>(key: Key) throws -> A {
-        let accumulator = try objectForKey(key)
-        do {
-            let jsonValue = try A.JSONValue(accumulator)
-            guard let result = jsonValue as? A else {
-                throw JSONError.TypeMismatch(key:key.JSONKey, expectedType:A.self, foundType:jsonValue.dynamicType)
-            }
-            return result
+        let any = try anyForKey(key)
+        guard let result = try A.JSONValue(any) as? A else {
+            throw JSONError.TypeMismatchWithKey(key: key, expected: A.self, actual: any.dynamicType)
         }
-        catch let JSONError.TypeMismatchForValue(expectedType: expectedType, foundType: foundType) {
-            throw JSONError.TypeMismatch(key:key.JSONKey, expectedType: expectedType, foundType: foundType)
+        
+        if let _ = result as? NSNull {
+            throw JSONError.NullValue(key: key)
         }
+        
+        return result
     }
     
     public func JSONValueForKey<A: JSONValueType>(key: Key) throws -> [A] {
-        let accumulator = try objectForKey(key)
-        return try Array<A>.JSONValue(accumulator)
+        let any = try anyForKey(key)
+        return try Array<A>.JSONValue(any)
     }
     
-    public func JSONOptionalForKey<A: JSONValueType>(key: Key) throws -> A? {
+    public func JSONValueForKey<A: JSONValueType>(key: Key) throws -> A? {
         do {
             return try self.JSONValueForKey(key) as A
         }
         catch JSONError.KeyNotFound {
             return nil
         }
-        catch JSONError.NullValueForKey {
+        catch JSONError.NullValue {
             return nil
         }
+        catch {
+            throw error
+        }
     }
-    
-    
 }
 
-public typealias JSONObject = [String: AnyObject]
+//
+// MARK: - Tests
+//
 
+//var json: JSONObject = ["url": "http://apple.com", "foo": (2 as NSNumber), "str": "Hello, World!", "array": [1,2,3,4,7], "object": ["foo": (3 as NSNumber), "str": "Hello, World!"], "bool": (true as NSNumber)]
+//do {
+//    var str: String = try json.JSONValueForKey("str")
+//    //    var foo1: String = try json.JSONValueForKey("foo")
+//    var foo2: Int = try json.JSONValueForKey("foo")
+//    var foo3: Int? = try json.JSONValueForKey("foo")
+//    var foo4: Int? = try json.JSONValueForKey("bar")
+//    var arr: [Int] = try json.JSONValueForKey("array")
+//    var obj: JSONObject? = try json.JSONValueForKey("object")
+//    let innerfoo: Int = try obj!.JSONValueForKey("foo")
+//    let innerfoo2: Int = try json.JSONValueForKey("object.foo")
+//    let bool: Bool = try json.JSONValueForKey("bool")
+//    let url: NSURL = try json.JSONValueForKey("url")
+//}
+//catch {
+//    print("\(error)")
+//}

@@ -8,13 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		7151DC991BC633F100CFB151 /* JaSON.h in Headers */ = {isa = PBXBuildFile; fileRef = 7151DC981BC633F100CFB151 /* JaSON.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		7151DCA01BC633F100CFB151 /* JaSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7151DC951BC633F100CFB151 /* JaSON.framework */; settings = {ASSET_TAGS = (); }; };
+		7151DCA01BC633F100CFB151 /* JaSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7151DC951BC633F100CFB151 /* JaSON.framework */; };
 		7151DCA51BC633F100CFB151 /* JaSONTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7151DCA41BC633F100CFB151 /* JaSONTests.swift */; };
-		7151DCB01BC6344600CFB151 /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7151DCAF1BC6344600CFB151 /* JSON.swift */; settings = {ASSET_TAGS = (); }; };
-		7151DCB21BC634D800CFB151 /* JSON+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7151DCB11BC634D800CFB151 /* JSON+Extras.swift */; settings = {ASSET_TAGS = (); }; };
-		CCB3069B1BC81BF000A1150A /* TestDictionary.json in Resources */ = {isa = PBXBuildFile; fileRef = CCB3069A1BC81BF000A1150A /* TestDictionary.json */; settings = {ASSET_TAGS = (); }; };
-		CCB3069D1BC81C1C00A1150A /* TestObjectArray.json in Resources */ = {isa = PBXBuildFile; fileRef = CCB3069C1BC81C1C00A1150A /* TestObjectArray.json */; settings = {ASSET_TAGS = (); }; };
-		CCB3069F1BC84C5300A1150A /* TestSimpleArray.json in Resources */ = {isa = PBXBuildFile; fileRef = CCB3069E1BC84C5300A1150A /* TestSimpleArray.json */; settings = {ASSET_TAGS = (); }; };
+		7151DCB01BC6344600CFB151 /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7151DCAF1BC6344600CFB151 /* JSON.swift */; };
+		7151DCB21BC634D800CFB151 /* JSON+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7151DCB11BC634D800CFB151 /* JSON+Extras.swift */; };
+		CCB3069B1BC81BF000A1150A /* TestDictionary.json in Resources */ = {isa = PBXBuildFile; fileRef = CCB3069A1BC81BF000A1150A /* TestDictionary.json */; };
+		CCB3069D1BC81C1C00A1150A /* TestObjectArray.json in Resources */ = {isa = PBXBuildFile; fileRef = CCB3069C1BC81C1C00A1150A /* TestObjectArray.json */; };
+		CCB3069F1BC84C5300A1150A /* TestSimpleArray.json in Resources */ = {isa = PBXBuildFile; fileRef = CCB3069E1BC84C5300A1150A /* TestSimpleArray.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -340,6 +340,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.swift-bit.JaSON";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx appletvsimulator appletvos";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -359,6 +360,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.swift-bit.JaSON";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx appletvsimulator appletvos";
 			};
 			name = Release;
 		};

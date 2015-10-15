@@ -1,9 +1,6 @@
 
 import Foundation
 
-extension Float : JSONValueType {}
-extension Double : JSONValueType {}
-extension Bool: JSONValueType {}
 
 public struct JSONParser {
     public static func JSONObjectWithData(data:NSData) throws -> JSONObject {
@@ -14,7 +11,7 @@ public struct JSONParser {
     public static func JSONObjectArrayWithData(data:NSData) throws -> [JSONObject] {
         let object:AnyObject = try NSJSONSerialization.JSONObjectWithData(data, options: [])
         guard let ra = object as? [JSONObject] else {
-            throw JSONError.TypeMismatchForValue(expectedType: [JSONObject].self, foundType: object.dynamicType)
+            throw JSONError.TypeMismatch(expected: [JSONObject].self, actual: object.dynamicType)
         }
         return ra
     }
@@ -27,7 +24,7 @@ public protocol JSONCollectionType {
 extension JSONCollectionType {
     public func jsonData() throws -> NSData {
         guard let jsonCollection = self as? AnyObject else {
-            throw JSONError.TypeMismatch(key:nil, expectedType: AnyObject.self, foundType: self.dynamicType) // shouldn't happen
+            throw JSONError.TypeMismatchWithKey(key:"", expected: AnyObject.self, actual: self.dynamicType) // shouldn't happen
         }
         return try NSJSONSerialization.dataWithJSONObject(jsonCollection, options: [])
     }
@@ -59,7 +56,7 @@ extension NSDate : JSONValueType {
             date = NSDate.fromISO8601String(dateString) {
                 return date
         }
-        throw JSONError.TypeMismatchForValue(expectedType: String.self, foundType: object.dynamicType)
+        throw JSONError.TypeMismatch(expected: String.self, actual: object.dynamicType)
     }
 }
 
@@ -92,15 +89,6 @@ public extension NSDate {
     }
 }
 
-extension NSURL : JSONValueType {
-    public static func JSONValue(object: Any) throws -> NSURL {
-        if let urlString = object as? String,
-            url = NSURL(string: urlString) {
-                return url
-        }
-        throw JSONError.TypeMismatchForValue(expectedType: String.self, foundType: object.dynamicType)
-    }
-}
 
 infix operator <| { associativity left precedence 150 }
 infix operator <|? { associativity left precedence 150 }
@@ -110,5 +98,5 @@ public func <| <A: JSONValueType>(dictionary: JSONObject, key: String) throws ->
 }
 
 public func <|? <A: JSONValueType>(dictionary: [String: AnyObject], key: String) throws -> A? {
-    return try dictionary.JSONOptionalForKey(key)
+    return try dictionary.JSONValueForKey(key)
 }

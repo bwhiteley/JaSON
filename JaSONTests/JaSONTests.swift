@@ -4,7 +4,7 @@ import XCTest
 
 class JaSONTests: XCTestCase {
     
-    let object: JSONObject = ["foo" : (2 as NSNumber), "str": "Hello, World!", "array" : [1,2,3,4,7], "object": ["foo" : (3 as NSNumber), "str": "Hello, World!"], "url":"http://apple.com", "date":"2015-10-07T15:04:46Z", "junk":"garbage"]
+    let object: JSONObject = ["foo" : (2 as NSNumber), "str": "Hello, World!", "array" : [1,2,3,4,7], "object": ["foo" : (3 as NSNumber), "str": "Hello, World!"], "url":"http://apple.com", "date":"2015-10-07T15:04:46Z", "junk":"garbage", "urls":["http://apple.com", "http://github.com"]]
 
     override func setUp() {
         super.setUp()
@@ -24,9 +24,9 @@ class JaSONTests: XCTestCase {
             //    var foo1: String = try object.JSONValueForKey("foo")
             let foo2: Int = try! self.object.JSONValueForKey("foo")
             XCTAssertEqual(foo2, 2)
-            let foo3: Int? = try! self.object.JSONOptionalForKey("foo")
+            let foo3: Int? = try! self.object.JSONValueForKey("foo")
             XCTAssertEqual(foo3, 2)
-            let foo4: Int? = try! self.object.JSONOptionalForKey("bar")
+            let foo4: Int? = try! self.object.JSONValueForKey("bar")
             XCTAssertEqual(foo4, .None)
             let arr: [Int] = try! self.object.JSONValueForKey("array")
             XCTAssert(arr.count == 5)
@@ -39,12 +39,12 @@ class JaSONTests: XCTestCase {
             let url:NSURL = try! self.object.JSONValueForKey("url")
             XCTAssertEqual(url.host, "apple.com")
             let _:NSDate = try! self.object.JSONValueForKey("date")
-            let date:NSDate? = try! self.object.JSONOptionalForKey("date")
+            let date:NSDate? = try! self.object.JSONValueForKey("date")
             XCTAssert(date != .None)
             
             let expectation = self.expectationWithDescription("error")
             do {
-                let _:NSDate? = try self.object.JSONOptionalForKey("junk")
+                let _:NSDate? = try self.object.JSONValueForKey("junk")
             }
             catch {
                 let jsonError = error as! JSONError
@@ -56,6 +56,9 @@ class JaSONTests: XCTestCase {
             }
             self.waitForExpectationsWithTimeout(1, handler: nil)
         }
+        
+//        let urls:[NSURL] = try! self.object.JSONValueForKey("urls")
+//        XCTAssertEqual(urls.first!.host, "apple.com")
     
     }
     
