@@ -161,7 +161,39 @@ class JaSONTests: XCTestCase {
         XCTAssertEqual(try! obj.JSONValueForKey("str") as String, "world")
     }
     
-    
+    func testCustomObjects() {
+        let path = NSBundle(forClass: self.dynamicType).pathForResource("People", ofType: "json")!
+        let data = NSData(contentsOfFile: path)!
+        let obj = try! JSONParser.JSONObjectWithData(data)
+        let people:[Person] = try! obj.JSONValueForKey("people")
+        let person:Person = try! obj.JSONValueForKey("person")
+        XCTAssertEqual(people.first!.firstName, "Jason")
+        XCTAssertEqual(person.firstName, "Jason")
+        XCTAssertEqual(person.score, 42)
+        XCTAssertEqual(people.last!.address!.city, "Cupertino")
+    }
+}
+
+struct Address: JSONObjectConvertible {
+    let street:String
+    let city:String
+    init(json: JSONObject) throws {
+        street = try json.JSONValueForKey("street")
+        city = try json.JSONValueForKey("city")
+    }
+}
+
+struct Person: JSONObjectConvertible {
+    let firstName:String
+    let lastName:String
+    let score:Int
+    let address:Address?
+    init(json: JSONObject) throws {
+        firstName = try json.JSONValueForKey("first")
+        lastName = try json.JSONValueForKey("last")
+        score = try json.JSONValueForKey("score")
+        address = try json.JSONValueForKey("address")
+    }
 }
 
 
