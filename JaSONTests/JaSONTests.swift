@@ -54,11 +54,13 @@ class JaSONTests: XCTestCase {
                     return
                 }
             }
+            
+            let urls:[NSURL] = try! self.object.JSONValueForKey("urls")
+            XCTAssertEqual(urls.first!.host, "apple.com")
+            
             self.waitForExpectationsWithTimeout(1, handler: nil)
         }
         
-//        let urls:[NSURL] = try! self.object.JSONValueForKey("urls")
-//        XCTAssertEqual(urls.first!.host, "apple.com")
     
     }
     

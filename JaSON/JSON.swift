@@ -68,10 +68,16 @@ extension Bool: JSONValueType {}
 
 extension Array where Element: JSONValueType {
     public static func JSONValue(object: Any) throws -> [Element] {
-        guard let objectValue = object as? [Element] else {
+        guard let anyArray = object as? [AnyObject] else {
             throw JSONError.TypeMismatch(expected: self, actual: object.dynamicType)
         }
-        return objectValue
+        return try anyArray.map {
+            let value = try Element.JSONValue($0)
+            guard let element = value as? Element else {
+                throw JSONError.TypeMismatch(expected: Element.self, actual: value.dynamicType)
+            }
+            return element
+        }
     }
 }
 
