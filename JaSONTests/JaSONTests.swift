@@ -68,12 +68,21 @@ class JaSONTests: XCTestCase {
         var str:String = try! object <| "str"
         XCTAssertEqual(str, "Hello, World!")
         
-        var optStr:String? = try! object <|? "str"
+        var optStr:String? = try! object <| "str"
         XCTAssertEqual(optStr, "Hello, World!")
         
-        optStr = try! object <|? "not found"
+        optStr = try! object <| "not found"
         XCTAssertEqual(optStr, .None)
         
+        let ra:[Int] = try! object <| "array"
+        XCTAssertEqual(ra[0], 1)
+        
+        var ora:[Int]? = try! object <| "array"
+        XCTAssertEqual(ora![0], 1)
+
+        ora = try! object <| "no key"
+        XCTAssertNil(ora)
+
         let ex = self.expectationWithDescription("not found")
         do {
             str = try object <| "not found"

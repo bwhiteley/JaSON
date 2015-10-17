@@ -139,7 +139,19 @@ extension Dictionary where Key: JSONKeyType {
         let any = try anyForKey(key)
         return try Array<A>.JSONValue(any)
     }
-    
+
+    public func JSONValueForKey<A: JSONValueType>(key: Key) throws -> [A]? {
+        do {
+            return try self.JSONValueForKey(key) as [A]
+        }
+        catch JSONError.KeyNotFound {
+            return nil
+        }
+        catch JSONError.NullValue {
+            return nil
+        }
+    }
+
     public func JSONValueForKey<A: JSONValueType>(key: Key) throws -> A? {
         do {
             return try self.JSONValueForKey(key) as A
@@ -149,9 +161,6 @@ extension Dictionary where Key: JSONKeyType {
         }
         catch JSONError.NullValue {
             return nil
-        }
-        catch {
-            throw error
         }
     }
 }

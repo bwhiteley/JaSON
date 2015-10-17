@@ -94,12 +94,17 @@ public extension NSDate {
 
 
 infix operator <| { associativity left precedence 150 }
-infix operator <|? { associativity left precedence 150 }
 
 public func <| <A: JSONValueType>(dictionary: JSONObject, key: String) throws -> A {
     return try dictionary.JSONValueForKey(key)
 }
-
-public func <|? <A: JSONValueType>(dictionary: [String: AnyObject], key: String) throws -> A? {
+public func <| <A: JSONValueType>(dictionary: JSONObject, key: String) throws -> A? {
     return try dictionary.JSONValueForKey(key)
 }
+public func <| <A: JSONValueType>(dictionary: JSONObject, key: String) throws -> [A] {
+    return try dictionary.JSONValueForKey(key)
+}
+public func <| <A: JSONValueType>(dictionary: JSONObject, key: String) throws -> [A]? {
+    return try dictionary.JSONValueForKey(key)
+}
+
