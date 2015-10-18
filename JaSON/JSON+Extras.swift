@@ -15,6 +15,7 @@ public struct JSONParser {
         }
         return ra
     }
+    private init() { } // No need to instatiate one of these. 
 }
 
 public protocol JSONCollectionType {

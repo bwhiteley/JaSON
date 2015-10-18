@@ -170,6 +170,20 @@ class JaSONTests: XCTestCase {
         XCTAssertEqual(try! obj.JSONValueForKey("str") as String, "world")
     }
     
+    func testNested() {
+        let dict = ["type": "connected",
+                "payload": [
+                    "team": [
+                        "id": "teamId",
+                        "name": "teamName"
+                    ]
+                ]
+            ]
+        
+        let teamId:String = try! dict.JSONValueForKey("payload.team.id")
+        XCTAssertEqual(teamId, "teamId")
+    }
+    
     func testCustomObjects() {
         let path = NSBundle(forClass: self.dynamicType).pathForResource("People", ofType: "json")!
         let data = NSData(contentsOfFile: path)!
