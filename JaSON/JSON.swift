@@ -119,6 +119,10 @@ extension Dictionary where Key: JSONKeyType {
             throw JSONError.KeyNotFound(key: key)
         }
         
+        if let _ = accumulator as? NSNull {
+            throw JSONError.NullValue(key: key)
+        }
+        
         return accumulator
     }
     
@@ -126,10 +130,6 @@ extension Dictionary where Key: JSONKeyType {
         let any = try anyForKey(key)
         guard let result = try A.JSONValue(any) as? A else {
             throw JSONError.TypeMismatchWithKey(key: key, expected: A.self, actual: any.dynamicType)
-        }
-        
-        if let _ = result as? NSNull {
-            throw JSONError.NullValue(key: key)
         }
         
         return result
