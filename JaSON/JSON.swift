@@ -49,7 +49,7 @@ public protocol JSONValueType {
 extension JSONValueType {
     public static func JSONValue(object: Any) throws -> _JSONValue {
         guard let objectValue = object as? _JSONValue else {
-            throw JSONError.TypeMismatch(expected: JSONValue.self, actual: object.dynamicType)
+            throw JSONError.TypeMismatch(expected: _JSONValue.self, actual: object.dynamicType)
         }
         return objectValue
     }

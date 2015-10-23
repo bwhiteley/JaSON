@@ -94,17 +94,18 @@ public extension NSDate {
 }
 
 public protocol JSONEnumType : JSONValueType {
+    typealias T
     typealias _JSONEnumType = Self
-    init?(jsonKey:String)
+    init?(rawValue:T)
 }
 
 public extension JSONEnumType {
     static func JSONValue(object: Any) throws -> _JSONEnumType {
-        guard let objectValue = object as? String else {
-            throw JSONError.TypeMismatch(expected: String.self, actual: object.dynamicType)
+        guard let rawValue = object as? T else {
+            throw JSONError.TypeMismatch(expected: T.self, actual: object.dynamicType)
         }
-        guard let value = self.init(jsonKey: objectValue) as? _JSONEnumType else {
-            throw JSONError.TypeMismatch(expected: "\(_JSONEnumType.self) (JSONEnumType)", actual: object)
+        guard let value = self.init(rawValue: rawValue) as? _JSONEnumType else {
+            throw JSONError.TypeMismatch(expected: "\(_JSONEnumType.self) (JSONEnumType)", actual: rawValue)
         }
         return value
     }

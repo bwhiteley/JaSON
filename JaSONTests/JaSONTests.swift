@@ -201,17 +201,16 @@ class JaSONTests: XCTestCase {
         case Two
         case Three
         
-        init?(jsonKey:String) {
-            guard let value = MyEnum(rawValue: jsonKey) else {
-                return nil
-            }
-            self = value
-        }
+    }
+    
+    enum MyIntEnum:Int, JSONEnumType {
+        case One = 1
+        case Two = 2
     }
     
 
     func testEnum() {
-        let json = ["one":"One", "two":"Two", "three":"Three", "four":"Junk"]
+        let json = ["one":"One", "two":"Two", "three":"Three", "four":"Junk", "iOne":NSNumber(integer: 1), "iTwo":NSNumber(integer: 2)]
         let one:MyEnum = try! json.JSONValueForKey("one")
         XCTAssertEqual(one, MyEnum.One)
         let two:MyEnum = try! json.JSONValueForKey("two")
@@ -228,6 +227,10 @@ class JaSONTests: XCTestCase {
             expectation.fulfill()
         }
         waitForExpectationsWithTimeout(5, handler: nil)
+        
+        let iOne:MyIntEnum = try! json.JSONValueForKey("iOne")
+        XCTAssertEqual(iOne, MyIntEnum.One)
+        
     }
 }
 
