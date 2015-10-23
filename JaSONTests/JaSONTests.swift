@@ -195,6 +195,40 @@ class JaSONTests: XCTestCase {
         XCTAssertEqual(person.score, 42)
         XCTAssertEqual(people.last!.address!.city, "Cupertino")
     }
+    
+    enum MyEnum:String, JSONEnumType {
+        case One
+        case Two
+        case Three
+        
+        init?(jsonKey:String) {
+            guard let value = MyEnum(rawValue: jsonKey) else {
+                return nil
+            }
+            self = value
+        }
+    }
+    
+
+    func testEnum() {
+        let json = ["one":"One", "two":"Two", "three":"Three", "four":"Junk"]
+        let one:MyEnum = try! json.JSONValueForKey("one")
+        XCTAssertEqual(one, MyEnum.One)
+        let two:MyEnum = try! json.JSONValueForKey("two")
+        XCTAssertEqual(two, MyEnum.Two)
+        
+        let nope:MyEnum? = try! json.JSONValueForKey("junk")
+        XCTAssertEqual(nope, .None)
+        
+        let expectation = expectationWithDescription("enum test")
+        do {
+            let _:MyEnum = try json.JSONValueForKey("four")
+        }
+        catch {
+            expectation.fulfill()
+        }
+        waitForExpectationsWithTimeout(5, handler: nil)
+    }
 }
 
 struct Address: JSONObjectConvertible {

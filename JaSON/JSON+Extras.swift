@@ -93,6 +93,25 @@ public extension NSDate {
     }
 }
 
+public protocol JSONEnumType : JSONValueType {
+    typealias _JSONEnumType = Self
+    init?(jsonKey:String)
+}
+
+public extension JSONEnumType {
+    static func JSONValue(object: Any) throws -> _JSONEnumType {
+        guard let objectValue = object as? String else {
+            throw JSONError.TypeMismatch(expected: String.self, actual: object.dynamicType)
+        }
+        guard let value = self.init(jsonKey: objectValue) as? _JSONEnumType else {
+            throw JSONError.TypeMismatch(expected: "\(_JSONEnumType.self) (JSONEnumType)", actual: object)
+        }
+        return value
+    }
+}
+
+
+
 
 infix operator <| { associativity left precedence 150 }
 
