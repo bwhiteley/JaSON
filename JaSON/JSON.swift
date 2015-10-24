@@ -46,7 +46,15 @@ public protocol JSONValueType {
     static func JSONValue(object: Any) throws -> _JSONValue
 }
 
-extension JSONValueType {
+//
+// MARK: - JSONValueType Implementations
+//
+
+public protocol JSONNativeValueType : JSONValueType {
+    
+}
+
+extension JSONNativeValueType {
     public static func JSONValue(object: Any) throws -> _JSONValue {
         guard let objectValue = object as? _JSONValue else {
             throw JSONError.TypeMismatch(expected: _JSONValue.self, actual: object.dynamicType)
@@ -55,16 +63,12 @@ extension JSONValueType {
     }
 }
 
-//
-// MARK: - JSONValueType Implementations
-//
-
-extension String: JSONValueType {}
-extension Int: JSONValueType {}
-extension UInt: JSONValueType {}
-extension Float: JSONValueType {}
-extension Double: JSONValueType {}
-extension Bool: JSONValueType {}
+extension String: JSONNativeValueType {}
+extension Int: JSONNativeValueType {}
+extension UInt: JSONNativeValueType {}
+extension Float: JSONNativeValueType {}
+extension Double: JSONNativeValueType {}
+extension Bool: JSONNativeValueType {}
 
 extension Array where Element: JSONValueType {
     public static func JSONValue(object: Any) throws -> [Element] {
