@@ -163,6 +163,51 @@ extension Dictionary where Key: JSONKeyType {
             return nil
         }
     }
+    
+}
+
+extension Dictionary where Key: JSONKeyType { // Enums
+    public func JSONValueForKey<A: RawRepresentable where A.RawValue: JSONValueType>(key: Key) throws -> A {
+        let raw = try self.JSONValueForKey(key) as A.RawValue
+        guard let value = A(rawValue: raw) else {
+            throw JSONError.TypeMismatch(expected: "\(A.self) (JSONEnumType)", actual: raw)
+        }
+        return value
+    }
+    
+    public func JSONValueForKey<A: RawRepresentable where A.RawValue: JSONValueType>(key: Key) throws -> A? {
+        do {
+            return try self.JSONValueForKey(key) as A
+        }
+        catch JSONError.KeyNotFound {
+            return nil
+        }
+        catch JSONError.NullValue {
+            return nil
+        }
+    }
+    
+    public func JSONValueForKey<A: RawRepresentable where A.RawValue: JSONValueType>(key: Key) throws -> [A] {
+        let rawArray = try self.JSONValueForKey(key) as [A.RawValue]
+        return try rawArray.map({ raw in
+            guard let value = A(rawValue: raw) else {
+                throw JSONError.TypeMismatch(expected: "\(A.self) (JSONEnumType)", actual: raw)
+            }
+            return value
+        })
+    }
+    
+    public func JSONValueForKey<A: RawRepresentable where A.RawValue: JSONValueType>(key: Key) throws -> [A]? {
+        do {
+            return try self.JSONValueForKey(key) as [A]
+        }
+        catch JSONError.KeyNotFound {
+            return nil
+        }
+        catch JSONError.NullValue {
+            return nil
+        }
+    }
 }
 
 //

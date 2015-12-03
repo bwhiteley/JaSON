@@ -196,14 +196,14 @@ class JaSONTests: XCTestCase {
         XCTAssertEqual(people.last!.address!.city, "Cupertino")
     }
     
-    enum MyEnum:String, JSONEnumType {
+    enum MyEnum:String {
         case One
         case Two
         case Three
         
     }
     
-    enum MyIntEnum:Int, JSONEnumType {
+    enum MyIntEnum:Int {
         case One = 1
         case Two = 2
     }
