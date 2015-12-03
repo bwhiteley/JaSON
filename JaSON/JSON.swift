@@ -170,7 +170,7 @@ extension Dictionary where Key: JSONKeyType { // Enums
     public func JSONValueForKey<A: RawRepresentable where A.RawValue: JSONValueType>(key: Key) throws -> A {
         let raw = try self.JSONValueForKey(key) as A.RawValue
         guard let value = A(rawValue: raw) else {
-            throw JSONError.TypeMismatch(expected: "\(A.self) (JSONEnumType)", actual: raw)
+            throw JSONError.TypeMismatch(expected: A.self, actual: raw)
         }
         return value
     }
@@ -191,7 +191,7 @@ extension Dictionary where Key: JSONKeyType { // Enums
         let rawArray = try self.JSONValueForKey(key) as [A.RawValue]
         return try rawArray.map({ raw in
             guard let value = A(rawValue: raw) else {
-                throw JSONError.TypeMismatch(expected: "\(A.self) (JSONEnumType)", actual: raw)
+                throw JSONError.TypeMismatch(expected: A.self, actual: raw)
             }
             return value
         })
