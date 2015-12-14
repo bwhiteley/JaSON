@@ -53,7 +53,6 @@ extension Array : JSONCollectionType {}
 
 public typealias JSONObjectArray = [JSONObject]
 
-
 extension NSDate : JSONValueType {
     public static func JSONValue(object: Any) throws -> NSDate {
         if let dateString = object as? String,
@@ -108,4 +107,15 @@ public func <| <A: JSONValueType>(dictionary: JSONObject, key: String) throws ->
 public func <| <A: JSONValueType>(dictionary: JSONObject, key: String) throws -> [A]? {
     return try dictionary.JSONValueForKey(key)
 }
-
+public func <| <A: RawRepresentable where A.RawValue: JSONValueType>(dictionary: JSONObject, key: String) throws -> A {
+    return try dictionary.JSONValueForKey(key)
+}
+public func <| <A: RawRepresentable where A.RawValue: JSONValueType>(dictionary: JSONObject, key: String) throws -> A? {
+    return try dictionary.JSONValueForKey(key)
+}
+public func <| <A: RawRepresentable where A.RawValue: JSONValueType>(dictionary: JSONObject, key: String) throws -> [A] {
+    return try dictionary.JSONValueForKey(key)
+}
+public func <| <A: RawRepresentable where A.RawValue: JSONValueType>(dictionary: JSONObject, key: String) throws -> [A]? {
+    return try dictionary.JSONValueForKey(key)
+}
