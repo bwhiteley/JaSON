@@ -163,7 +163,6 @@ extension Dictionary where Key: JSONKeyType {
             return nil
         }
     }
-    
 }
 
 extension Dictionary where Key: JSONKeyType { // Enums
@@ -210,24 +209,3 @@ extension Dictionary where Key: JSONKeyType { // Enums
     }
 }
 
-//
-// MARK: - Tests
-//
-
-//var json: JSONObject = ["url": "http://apple.com", "foo": (2 as NSNumber), "str": "Hello, World!", "array": [1,2,3,4,7], "object": ["foo": (3 as NSNumber), "str": "Hello, World!"], "bool": (true as NSNumber)]
-//do {
-//    var str: String = try json.JSONValueForKey("str")
-//    //    var foo1: String = try json.JSONValueForKey("foo")
-//    var foo2: Int = try json.JSONValueForKey("foo")
-//    var foo3: Int? = try json.JSONValueForKey("foo")
-//    var foo4: Int? = try json.JSONValueForKey("bar")
-//    var arr: [Int] = try json.JSONValueForKey("array")
-//    var obj: JSONObject? = try json.JSONValueForKey("object")
-//    let innerfoo: Int = try obj!.JSONValueForKey("foo")
-//    let innerfoo2: Int = try json.JSONValueForKey("object.foo")
-//    let bool: Bool = try json.JSONValueForKey("bool")
-//    let url: NSURL = try json.JSONValueForKey("url")
-//}
-//catch {
-//    print("\(error)")
-//}
