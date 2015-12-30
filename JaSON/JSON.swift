@@ -66,6 +66,13 @@ extension Float: JSONValueType {}
 extension Double: JSONValueType {}
 extension Bool: JSONValueType {}
 
+extension Int64: JSONValueType {
+    public static func JSONValue(object: Any) throws -> Int64 {
+        guard let value = object as? NSNumber else { throw JSONError.TypeMismatch(expected: NSNumber.self, actual: object.dynamicType) }
+        return value.longLongValue
+    }
+}
+
 extension Array where Element: JSONValueType {
     public static func JSONValue(object: Any) throws -> [Element] {
         guard let anyArray = object as? [AnyObject] else {
