@@ -55,11 +55,13 @@ public typealias JSONObjectArray = [JSONObject]
 
 extension NSDate : JSONValueType {
     public static func JSONValue(object: Any) throws -> NSDate {
-        if let dateString = object as? String,
-            date = NSDate.fromISO8601String(dateString) {
-                return date
+        guard let dateString = object as? String else {
+            throw JSONError.TypeMismatch(expected: String.self, actual: object.dynamicType)
         }
-        throw JSONError.TypeMismatch(expected: String.self, actual: object.dynamicType)
+        guard let date = NSDate.fromISO8601String(dateString) else {
+            throw JSONError.TypeMismatch(expected: "ISO8601 date string", actual: dateString)
+        }
+        return date
     }
 }
 

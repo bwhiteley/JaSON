@@ -51,7 +51,7 @@ class JaSONTests: XCTestCase {
             catch {
                 let jsonError = error as! JSONError
                 expectation.fulfill()
-                guard case JSONError.TypeMismatch = jsonError else {
+                guard case JSONError.TypeMismatchWithKey = jsonError else {
                     XCTFail("shouldn't get here")
                     return
                 }
@@ -115,7 +115,7 @@ class JaSONTests: XCTestCase {
             let _:Int = try object.JSONValueForKey("str")
         }
         catch {
-            if case JSONError.TypeMismatch = error {
+            if case JSONError.TypeMismatchWithKey = error {
                 expectation.fulfill()
             }
         }
