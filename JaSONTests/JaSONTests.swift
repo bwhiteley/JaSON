@@ -4,7 +4,7 @@ import XCTest
 
 class JaSONTests: XCTestCase {
     
-    let object: JSONObject = ["foo" : (2 as NSNumber), "str": "Hello, World!", "array" : [1,2,3,4,7], "object": ["foo" : (3 as NSNumber), "str": "Hello, World!"], "url":"http://apple.com", "date":"2015-10-07T15:04:46Z", "junk":"garbage", "urls":["http://apple.com", "http://github.com"]]
+    let object: JSONObject = ["bigNumber": NSNumber(longLong: 10_000_000_000_000), "foo" : (2 as NSNumber), "str": "Hello, World!", "array" : [1,2,3,4,7], "object": ["foo" : (3 as NSNumber), "str": "Hello, World!"], "url":"http://apple.com", "date":"2015-10-07T15:04:46Z", "junk":"garbage", "urls":["http://apple.com", "http://github.com"]]
 
     override func setUp() {
         super.setUp()
@@ -24,6 +24,8 @@ class JaSONTests: XCTestCase {
             //    var foo1: String = try object.JSONValueForKey("foo")
             let foo2: Int = try! self.object.JSONValueForKey("foo")
             XCTAssertEqual(foo2, 2)
+            let bigNumber: Int64 = try! self.object.JSONValueForKey("bigNumber")
+            XCTAssertEqual(bigNumber, 10_000_000_000_000)
             let foo3: Int? = try! self.object.JSONValueForKey("foo")
             XCTAssertEqual(foo3, 2)
             let foo4: Int? = try! self.object.JSONValueForKey("bar")
@@ -196,14 +198,14 @@ class JaSONTests: XCTestCase {
         XCTAssertEqual(people.last!.address!.city, "Cupertino")
     }
     
-    enum MyEnum:String, JSONEnumType {
+    enum MyEnum:String {
         case One
         case Two
         case Three
         
     }
     
-    enum MyIntEnum:Int, JSONEnumType {
+    enum MyIntEnum:Int {
         case One = 1
         case Two = 2
     }

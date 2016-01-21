@@ -53,7 +53,6 @@ extension Array : JSONCollectionType {}
 
 public typealias JSONObjectArray = [JSONObject]
 
-
 extension NSDate : JSONValueType {
     public static func JSONValue(object: Any) throws -> NSDate {
         if let dateString = object as? String,
@@ -93,26 +92,6 @@ public extension NSDate {
     }
 }
 
-public protocol JSONEnumType : JSONValueType {
-    typealias T
-    typealias _JSONEnumType = Self
-    init?(rawValue:T)
-}
-
-public extension JSONEnumType {
-    static func JSONValue(object: Any) throws -> _JSONEnumType {
-        guard let rawValue = object as? T else {
-            throw JSONError.TypeMismatch(expected: T.self, actual: object.dynamicType)
-        }
-        guard let value = self.init(rawValue: rawValue) as? _JSONEnumType else {
-            throw JSONError.TypeMismatch(expected: "\(_JSONEnumType.self) (JSONEnumType)", actual: rawValue)
-        }
-        return value
-    }
-}
-
-
-
 
 infix operator <| { associativity left precedence 150 }
 
@@ -128,4 +107,15 @@ public func <| <A: JSONValueType>(dictionary: JSONObject, key: String) throws ->
 public func <| <A: JSONValueType>(dictionary: JSONObject, key: String) throws -> [A]? {
     return try dictionary.JSONValueForKey(key)
 }
-
+public func <| <A: RawRepresentable where A.RawValue: JSONValueType>(dictionary: JSONObject, key: String) throws -> A {
+    return try dictionary.JSONValueForKey(key)
+}
+public func <| <A: RawRepresentable where A.RawValue: JSONValueType>(dictionary: JSONObject, key: String) throws -> A? {
+    return try dictionary.JSONValueForKey(key)
+}
+public func <| <A: RawRepresentable where A.RawValue: JSONValueType>(dictionary: JSONObject, key: String) throws -> [A] {
+    return try dictionary.JSONValueForKey(key)
+}
+public func <| <A: RawRepresentable where A.RawValue: JSONValueType>(dictionary: JSONObject, key: String) throws -> [A]? {
+    return try dictionary.JSONValueForKey(key)
+}

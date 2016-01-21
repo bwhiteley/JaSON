@@ -70,6 +70,13 @@ extension Float: JSONNativeValueType {}
 extension Double: JSONNativeValueType {}
 extension Bool: JSONNativeValueType {}
 
+extension Int64: JSONValueType {
+    public static func JSONValue(object: Any) throws -> Int64 {
+        guard let value = object as? NSNumber else { throw JSONError.TypeMismatch(expected: NSNumber.self, actual: object.dynamicType) }
+        return value.longLongValue
+    }
+}
+
 extension Array where Element: JSONValueType {
     public static func JSONValue(object: Any) throws -> [Element] {
         guard let anyArray = object as? [AnyObject] else {
@@ -169,24 +176,47 @@ extension Dictionary where Key: JSONKeyType {
     }
 }
 
-//
-// MARK: - Tests
-//
+extension Dictionary where Key: JSONKeyType { // Enums
+    public func JSONValueForKey<A: RawRepresentable where A.RawValue: JSONValueType>(key: Key) throws -> A {
+        let raw = try self.JSONValueForKey(key) as A.RawValue
+        guard let value = A(rawValue: raw) else {
+            throw JSONError.TypeMismatch(expected: A.self, actual: raw)
+        }
+        return value
+    }
+    
+    public func JSONValueForKey<A: RawRepresentable where A.RawValue: JSONValueType>(key: Key) throws -> A? {
+        do {
+            return try self.JSONValueForKey(key) as A
+        }
+        catch JSONError.KeyNotFound {
+            return nil
+        }
+        catch JSONError.NullValue {
+            return nil
+        }
+    }
+    
+    public func JSONValueForKey<A: RawRepresentable where A.RawValue: JSONValueType>(key: Key) throws -> [A] {
+        let rawArray = try self.JSONValueForKey(key) as [A.RawValue]
+        return try rawArray.map({ raw in
+            guard let value = A(rawValue: raw) else {
+                throw JSONError.TypeMismatch(expected: A.self, actual: raw)
+            }
+            return value
+        })
+    }
+    
+    public func JSONValueForKey<A: RawRepresentable where A.RawValue: JSONValueType>(key: Key) throws -> [A]? {
+        do {
+            return try self.JSONValueForKey(key) as [A]
+        }
+        catch JSONError.KeyNotFound {
+            return nil
+        }
+        catch JSONError.NullValue {
+            return nil
+        }
+    }
+}
 
-//var json: JSONObject = ["url": "http://apple.com", "foo": (2 as NSNumber), "str": "Hello, World!", "array": [1,2,3,4,7], "object": ["foo": (3 as NSNumber), "str": "Hello, World!"], "bool": (true as NSNumber)]
-//do {
-//    var str: String = try json.JSONValueForKey("str")
-//    //    var foo1: String = try json.JSONValueForKey("foo")
-//    var foo2: Int = try json.JSONValueForKey("foo")
-//    var foo3: Int? = try json.JSONValueForKey("foo")
-//    var foo4: Int? = try json.JSONValueForKey("bar")
-//    var arr: [Int] = try json.JSONValueForKey("array")
-//    var obj: JSONObject? = try json.JSONValueForKey("object")
-//    let innerfoo: Int = try obj!.JSONValueForKey("foo")
-//    let innerfoo2: Int = try json.JSONValueForKey("object.foo")
-//    let bool: Bool = try json.JSONValueForKey("bool")
-//    let url: NSURL = try json.JSONValueForKey("url")
-//}
-//catch {
-//    print("\(error)")
-//}
