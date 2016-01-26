@@ -3,10 +3,10 @@
 //
 
 public enum JSONError: ErrorType, CustomStringConvertible {
-    case KeyNotFound(key: JSONKeyType)
-    case NullValue(key: JSONKeyType)
+    case KeyNotFound(key: String)
+    case NullValue(key: String)
     case TypeMismatch(expected: Any, actual: Any)
-    case TypeMismatchWithKey(key: JSONKeyType, expected: Any, actual: Any)
+    case TypeMismatchWithKey(key: String, expected: Any, actual: Any)
     
     public var description: String {
         switch self {
@@ -123,11 +123,11 @@ extension Dictionary where Key: JSONKeyType {
                 continue
             }
             
-            throw JSONError.KeyNotFound(key: key)
+            throw JSONError.KeyNotFound(key: key.stringValue)
         }
         
         if let _ = accumulator as? NSNull {
-            throw JSONError.NullValue(key: key)
+            throw JSONError.NullValue(key: key.stringValue)
         }
         
         return accumulator
@@ -137,12 +137,12 @@ extension Dictionary where Key: JSONKeyType {
         let any = try anyForKey(key)
         do {
             guard let result = try A.JSONValue(any) as? A else {
-                throw JSONError.TypeMismatchWithKey(key: key, expected: A.self, actual: any.dynamicType)
+                throw JSONError.TypeMismatchWithKey(key: key.stringValue, expected: A.self, actual: any.dynamicType)
             }
             return result
         }
         catch let JSONError.TypeMismatch(expected: expected, actual: actual) {
-            throw JSONError.TypeMismatchWithKey(key: key, expected: expected, actual: actual)
+            throw JSONError.TypeMismatchWithKey(key: key.stringValue, expected: expected, actual: actual)
         }
     }
     
@@ -152,7 +152,7 @@ extension Dictionary where Key: JSONKeyType {
             return try Array<A>.JSONValue(any)
         }
         catch let JSONError.TypeMismatch(expected: expected, actual: actual) {
-            throw JSONError.TypeMismatchWithKey(key: key, expected: expected, actual: actual)
+            throw JSONError.TypeMismatchWithKey(key: key.stringValue, expected: expected, actual: actual)
         }
     }
 
@@ -185,7 +185,7 @@ extension Dictionary where Key: JSONKeyType { // Enums
     public func JSONValueForKey<A: RawRepresentable where A.RawValue: JSONValueType>(key: Key) throws -> A {
         let raw = try self.JSONValueForKey(key) as A.RawValue
         guard let value = A(rawValue: raw) else {
-            throw JSONError.TypeMismatchWithKey(key: key, expected: A.self, actual: raw)
+            throw JSONError.TypeMismatchWithKey(key: key.stringValue, expected: A.self, actual: raw)
         }
         return value
     }
@@ -206,7 +206,7 @@ extension Dictionary where Key: JSONKeyType { // Enums
         let rawArray = try self.JSONValueForKey(key) as [A.RawValue]
         return try rawArray.map({ raw in
             guard let value = A(rawValue: raw) else {
-                throw JSONError.TypeMismatchWithKey(key: key, expected: A.self, actual: raw)
+                throw JSONError.TypeMismatchWithKey(key: key.stringValue, expected: A.self, actual: raw)
             }
             return value
         })
