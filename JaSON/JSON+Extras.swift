@@ -68,14 +68,14 @@ extension NSDate : JSONValueType {
 public extension NSDate {
     static private let ISO8601MillisecondFormatter:NSDateFormatter = {
         let formatter = NSDateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
         let tz = NSTimeZone(abbreviation:"GMT")
         formatter.timeZone = tz
         return formatter
         }()
     static private let ISO8601SecondFormatter:NSDateFormatter = {
         let formatter = NSDateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ";
         let tz = NSTimeZone(abbreviation:"GMT")
         formatter.timeZone = tz
         return formatter
